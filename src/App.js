@@ -1,109 +1,88 @@
-import { useState, useRef } from "react";
-
-// const App = () => {
-//   const [todo, setTodo] = useState({
-//   });
-//   const [todolist, setTodolist] = useState([]);
-//   const handlerInput = (e) => {
-//     setTodo({ ...todo, [e.target.name]: e.target.value })
-//   }
-//   const handlerList = () => {
-//     if (todo.title.length < 5) {
-//       return
-//     }
-//     setTodolist([...todolist, todo]);
-//     setTodo({
-//       title: "",
-//       content: "",
-//     })
-//   }
-//   return (
-
-//     <div>
-//       <ul>
-//         {
-//           todolist.map(it => <li>{it.title} / {it.content}</li>)
-//         }
-//       </ul>
-//       <input type="text" onChange={handlerInput} value={todo.title} name="title" />
-//       <input type="text" onChange={handlerInput} value={todo.content} name="content" />
-//       <button onClick={handlerList}>WRITE</button>
-//       {console.log(todo)}
-//     </div >
-//   )
-// }
+import React, { useRef, useState } from 'react'
 
 const App = () => {
-  const [todo, setTodo] = useState({});
-  const [todolist, setTodolist] = useState([]);
-  // 고유 id 값을 주기 위해 
-  const num = useRef(1);
+  const [word, setWord] = useState({});
+  const [list, setList] = useState([])
 
-  const handlerInput = (e) => {
+  const num = useRef(1);
+  // 생애주기~?
+  const inputTitle = useRef(null);
+  const inputContent = useRef(null);
+
+  const handlerWord = e => {
     const { name, value } = e.target;
-    setTodo({
-      ...todo,
+    setWord({
+      ...word,
       [name]: value,
-      id: num.current,
-      done: false,
+      id: num.current
     })
   }
 
+
   const handlerList = () => {
-    if (todo.title.length < 5) {
-      alert('5글자 이상 입력해야 합니다.')
+    // const hg = /^[ㄱ-ㅎ|가-힣]+$/;
+    const hg = /^[ㄱ-ㅎ 가-힣]*$/;
+
+    // 느낌표가 빠지니까 ㄴㄴㄴ를 한글로 인식하지 못하네 왜..?
+    if (!hg.test(word.title)) {
+      alert('한글만 작성 가능합니다.')
+      setWord({
+        ...word,
+        title: "",
+      })
+      inputTitle.current.focus();
       return
     }
-    setTodolist([...todolist, todo]);
-    setTodo({
+
+    if (!word.title || !word.content) {
+      alert('더 입력하셔야 합니다.');
+      return
+    }
+
+    if (word.title.length < 5) {
+      alert('더 입력하셔야 합니다.')
+      // 1. 입력창을 비운다., 2. 비운 입력창에 포커스를 준다.
+      setWord({
+        ...word,
+        title: "",
+      })
+      inputTitle.current.focus();
+      return
+    }
+
+    if (word.content.length < 5) {
+      alert('더 입력하셔야 합니다.')
+      setWord({
+        ...word,
+        title: "",
+      })
+      // inputContent.current.focus();
+      return
+    }
+
+    setList([...list, word]);
+    setWord({
       title: "",
       content: "",
     })
-    // num.current = num.current + 1
     num.current++
   }
 
-  const handlerDelete = (id) => {
-    // todolist.filter(it => id !== it.id) 
-    // todolist filter 순회하면서 it == it id 같지 않은 것들의 새 배열을 반환한다
-    setTodolist(todolist.filter(it => id !== it.id))
-  }
-  const handlerModify = (id) => {
-    console.log(id);
-    // setTodolist(todolist.map(it => ({ it })))
-    // setTodolist(todolist.map(it => (it)))
-    setTodolist(todolist.map(it => (
-      id === it.id
-        ? {
-          ...it,
-          done: !it.done
-        }
-        : it
-    )))
-  }
-  return (
 
+  return (
     <div>
+      <h2>list</h2>
       <ul>
         {
-          // <input type="checkbox" onChange={() => console.log('체크')} /> 
-          todolist.map((it, idx) => <li key={it.id} className={it.done ? 'on' : ''}>
-            <input type="checkbox" onChange={() => handlerModify(it.id)} />  {it.title} / {it.content}
-            {/* <button onClick={handlerDelete(it.id)}>삭제</button> */}
-            {/* 이벤트가 바로 실행되어 버렸다. 그래서 아래 () => (클릭했을 때 event) 추가했다. */}
-            <button onClick={() => handlerDelete(it.id)}>삭제</button>{console.log(it.done)}
-          </li>)
-          // 객체에 고유한 번호가 필요하다.
+          list.map((li, idx) => <li key={li.id}>{li.title} {li.content}</li>)
         }
       </ul>
-      {/* 여기는() => handlerInput() 또는 handlerInput 만 쓰면 실행된다.*/}
-      <input type="text" onChange={handlerInput} value={todo.title || ''} name="title" />
-      <input type="text" onChange={handlerInput} value={todo.content || ''} name="content" />
-      <button onClick={handlerList}>WRITE</button>
-      {console.log(todo)}
-    </div >
+      <div>{console.log(list)}</div>
+      <div><input type="text" onChange={handlerWord} name="title" value={word.title || ''} ref={inputTitle} /></div>
+      <div><input type="text" onChange={handlerWord} name="content" value={word.content || ''} /></div>
+      <div><button onClick={handlerList}>WRITE</button></div>
+    </div>
   )
 }
 
-export default App;
-
+export default App
