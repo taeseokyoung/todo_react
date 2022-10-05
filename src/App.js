@@ -1,6 +1,12 @@
 import React, { useRef, useState } from 'react'
+import TodoList from './TodoList';
+import TodoWrite from './TodoWrite';
+import { Routes, Route, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
 const App = () => {
+
+
   const [word, setWord] = useState({});
   const [list, setList] = useState([])
 
@@ -8,6 +14,8 @@ const App = () => {
   // 생애주기~?
   const inputTitle = useRef(null);
   const inputContent = useRef(null);
+
+  const navi = useNavigate();
 
   const handlerWord = e => {
     const { name, value } = e.target;
@@ -66,21 +74,23 @@ const App = () => {
       content: "",
     })
     num.current++
+    navi('/board')
   }
 
 
   return (
+
     <div>
-      <h2>list</h2>
-      <ul>
-        {
-          list.map((li, idx) => <li key={li.id}>{li.title} {li.content}</li>)
-        }
-      </ul>
-      <div>{console.log(list)}</div>
-      <div><input type="text" onChange={handlerWord} name="title" value={word.title || ''} ref={inputTitle} /></div>
-      <div><input type="text" onChange={handlerWord} name="content" value={word.content || ''} /></div>
-      <div><button onClick={handlerList}>WRITE</button></div>
+      <nav>
+        <NavLink to='/'>Home</NavLink>
+        <NavLink to='/board'>Board</NavLink>
+        <NavLink to='/write'>Write</NavLink>
+      </nav>
+      <Routes>
+        <Route path='/' element={<TodoList list={list} setList={setList} />} />
+        <Route path='/board' element={<TodoList list={list} setList={setList} />} />
+        <Route path='/write' element={<TodoWrite list={list} word={word} handlerWord={handlerWord} handlerList={handlerList} inputTitle={inputTitle} />} />
+      </Routes>
     </div>
   )
 }
